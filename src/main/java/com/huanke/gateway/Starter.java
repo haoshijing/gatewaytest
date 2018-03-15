@@ -13,6 +13,8 @@ import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.util.concurrent.DefaultEventExecutorGroup;
 import io.netty.util.concurrent.DefaultThreadFactory;
 import io.netty.util.concurrent.EventExecutorGroup;
+import io.vertx.core.Vertx;
+import io.vertx.core.VertxOptions;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.scheduling.annotation.EnableScheduling;
@@ -24,6 +26,12 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @SpringBootApplication
 @EnableScheduling
 public class Starter {
+
+    public static  void initVert(){
+        VertxOptions options = new VertxOptions();
+        Vertx vertx = Vertx.vertx(options);
+
+    }
 
     public static  void initNetty() throws Exception {
         NioEventLoopGroup bossGroup = new NioEventLoopGroup(1,new DefaultThreadFactory("BossThread"));
@@ -41,7 +49,7 @@ public class Starter {
                         ChannelPipeline pipeline = channel.pipeline();
                         pipeline.addLast(new NettyDecoder())
                                 .addLast(new NettyEncoder())
-                                .addLast(new ServiceHandler());
+                                .addLast(handlerExecutorGroup,new ServiceHandler());
                     }
                 });
         ChannelFuture sync = serverBootstrap.bind(8077).sync();
@@ -49,7 +57,7 @@ public class Starter {
 
     public static void main(String[] args) {
         try {
-            initNetty();
+           // initNetty();
         }catch (Exception e){
 
         }
