@@ -11,7 +11,7 @@ import java.nio.ByteBuffer;
  **/
 public class Test {
     public static void main(String[] args) throws Exception {
-        Socket socket = new Socket("39.104.52.84",8077);
+        Socket socket = new Socket("127.0.0.1",8077);
         DataOutputStream dataOutputStream = new DataOutputStream(socket.getOutputStream());
         DataInputStream dataInputStream = new DataInputStream(socket.getInputStream());
         String msg = "hello,world,12354656";

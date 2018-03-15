@@ -2,6 +2,7 @@ package com.huanke.gateway.protocol;
 
 import io.netty.buffer.ByteBuf;
 import lombok.Getter;
+import lombok.Setter;
 
 import java.nio.ByteBuffer;
 
@@ -12,8 +13,10 @@ import java.nio.ByteBuffer;
 public class Packet {
 
     @Getter
+    @Setter
     private Integer cmd;
     @Getter
+    @Setter
     private String msg;
 
     public static  Packet decode(ByteBuffer byteBuffer){
