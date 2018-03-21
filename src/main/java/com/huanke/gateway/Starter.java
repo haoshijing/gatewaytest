@@ -19,10 +19,12 @@ import io.netty.handler.codec.mqtt.MqttEncoder;
 import io.netty.util.concurrent.DefaultEventExecutorGroup;
 import io.netty.util.concurrent.DefaultThreadFactory;
 import io.netty.util.concurrent.EventExecutorGroup;
+import io.vertx.core.DeploymentOptions;
 import io.vertx.core.Vertx;
 import io.vertx.core.VertxOptions;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.eventbus.MessageCodec;
+import io.vertx.core.json.JsonObject;
 import io.vertx.core.net.NetServer;
 import io.vertx.core.net.NetServerOptions;
 import lombok.extern.slf4j.Slf4j;
@@ -40,37 +42,22 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 public class Starter {
 
     public static void initVert() {
-        Vertx vertx = Vertx.vertx(new VertxOptions());
-        vertx.createSharedWorkerExecutor("HandlerWork", 20);
-        NetServer server = vertx.createNetServer(
-                new NetServerOptions().setPort(8077).setHost("localhost")
-        );
-        vertx.eventBus().consumer("test",(data)->{
-            byte[] datas = (byte[])data.body();
-            try {
-                log.info("datas.length = " + (datas != null ? datas.length : 0));
-                Thread.sleep(3000);
-            }catch (Exception e){
-
-            }
-
-        });
-        server.connectHandler(sock -> {
-            sock.handler(buffer -> {
-                // Write the data straight back
-                vertx.eventBus().publish("test",buffer.getBytes());
-            });
-        }).listen();
-
+        String jsonString = "{\"foo\":\"bar\"}";
+        JsonObject object = new JsonObject(jsonString);
+        System.out.println("");
+        VertxOptions vertxOptions = new VertxOptions();
+        vertxOptions.setPreferNativeTransport(true);
+        Vertx vertx = Vertx.vertx(vertxOptions);
+        DeploymentOptions deploymentOptions = new DeploymentOptions();
+        deploymentOptions.setWorker(true);
+        deploymentOptions.setWorkerPoolName("WorkPoolName");
+        vertx.deployVerticle("com.huanke.gateway.vert.NetWorkVerticle",deploymentOptions);
     }
 
     public static void initNetty() throws Exception {
         NioEventLoopGroup bossGroup = new NioEventLoopGroup(1, new DefaultThreadFactory("BossThread"));
-
         NioEventLoopGroup workGroup = new NioEventLoopGroup(4, new DefaultThreadFactory("WorkThread"));
-
         EventExecutorGroup handlerExecutorGroup = new DefaultEventExecutorGroup(4, new DefaultThreadFactory("handlerWorkThread"));
-
         ServerBootstrap serverBootstrap = new ServerBootstrap();
         serverBootstrap.group(bossGroup, workGroup);
         serverBootstrap.channel(NioServerSocketChannel.class)
@@ -89,7 +76,7 @@ public class Starter {
 
     public static void main(String[] args) {
         try {
-            initNetty();
+            initVert();
         } catch (Exception e) {
 
         }
