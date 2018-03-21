@@ -7,6 +7,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * 发送数据到mqtt服务器
@@ -18,6 +19,8 @@ public class PubMsg {
     private static String broker = "tcp://39.104.52.84:8077";
     private static String userName = "admin";
     private static String passWord = "admin";
+
+    private static AtomicBoolean hasReg = new AtomicBoolean(false);
 
 
     private static MqttClient connect(String clientId,String userName,
@@ -36,7 +39,7 @@ public class PubMsg {
         mqttClient.setCallback(new PushCallback("test"));
         mqttClient.connect(connOpts);
 
-        if(mqttClient.isConnected()){
+        if(mqttClient.isConnected() && !hasReg.get()){
             mqttClient.subscribe("counter",new IMqttMessageListener(){
 
                 @Override
@@ -45,6 +48,7 @@ public class PubMsg {
                     System.out.println("topic = [" + topic + "], counter = [" + new String(datas) + "]");
                 }
             });
+            hasReg.compareAndSet(false,true);
         }
         return mqttClient;
     }
