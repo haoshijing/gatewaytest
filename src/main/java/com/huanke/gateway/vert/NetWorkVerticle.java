@@ -5,6 +5,7 @@ import io.vertx.core.Future;
 import io.vertx.core.impl.NetSocketInternal;
 import io.vertx.core.net.NetServer;
 import io.vertx.core.net.NetServerOptions;
+import io.vertx.core.net.impl.NetSocketImpl;
 
 /**
  * @author haoshijing
@@ -23,7 +24,7 @@ public class NetWorkVerticle extends AbstractVerticle {
 
         NetServer netServer = vertx.createNetServer(opt);
         netServer.connectHandler(netSocket -> {
-            NetSocketInternal netSocketInternal = (NetSocketInternal)netSocket;
+            NetSocketImpl netSocketImpl = (NetSocketImpl)netSocket;
             netSocket.handler(buffer -> {
             // Write the data straight back
             vertx.eventBus().publish("test",buffer.getBytes());

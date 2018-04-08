@@ -39,23 +39,12 @@ public class PubMsg {
         mqttClient.setCallback(new PushCallback("test"));
         mqttClient.connect(connOpts);
 
-        if(mqttClient.isConnected() && !hasReg.get()){
-            mqttClient.subscribe("counter",new IMqttMessageListener(){
-
-                @Override
-                public void messageArrived(String topic, MqttMessage message) throws Exception {
-                    byte[] datas = message.getPayload();
-                    System.out.println("topic = [" + topic + "], counter = [" + new String(datas) + "]");
-                }
-            });
-            hasReg.compareAndSet(false,true);
-        }
         return mqttClient;
     }
 
     private static void pub(MqttClient sampleClient, String msg,String topic)
             throws MqttPersistenceException, MqttException {
-        MqttMessage message = new MqttMessage("测试发送消息".getBytes());
+        MqttMessage message = new MqttMessage(msg.getBytes());
         message.setQos(qos);
         message.setRetained(false);
         sampleClient.publish(topic, message);
@@ -77,7 +66,7 @@ public class PubMsg {
             @Override
             public void run() {
                 try {
-                    publish("hello,world", "client-id-0", "test");
+                    publish("hello,world", "client-id-0", "/test");
                 }catch (Exception e){
                     e.printStackTrace();
                 }
